@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3 uid="uid://b4lxmwn6t3qk7"]
+
+[ext_resource type="Script" path="res://scripts/Grid.gd" id="1_s6uc6"]
+[ext_resource type="Script" path="res://scripts/selector.gd" id="2_eht0e"]
+[ext_resource type="Texture2D" uid="uid://cpj7wibrewng8" path="res://sprites/Hollow White Square.png" id="3_04wyd"]
+[ext_resource type="PackedScene" uid="uid://bnmphiv6jtbgt" path="res://scenes/atom.tscn" id="4_gvcrf"]
+
+[node name="Grid" type="Node2D"]
+script = ExtResource("1_s6uc6")
+
+[node name="Selector" type="Node2D" parent="."]
+z_index = 1
+script = ExtResource("2_eht0e")
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="Selector"]
+
+[node name="Sprite2D" type="Sprite2D" parent="Selector"]
+texture = ExtResource("3_04wyd")
+
+[node name="CharacterBody2D" parent="." instance=ExtResource("4_gvcrf")]
+position = Vector2(157, -54)
