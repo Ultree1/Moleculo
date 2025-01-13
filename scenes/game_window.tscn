@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3 uid="uid://busfdy5871n1l"]
+
+[ext_resource type="Script" path="res://scripts/grid.gd" id="1_dctvc"]
+
+[node name="game_window" type="Node2D"]
+
+[node name="Background" type="TextureRect" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="grid" type="Node2D" parent="."]
+script = ExtResource("1_dctvc")
+width = 5
+height = 5
+x_start = 80
+y_start = 650
+offset = 106

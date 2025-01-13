@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://csewdebdf4rp5"]
+
+[ext_resource type="PackedScene" uid="uid://rlkyxbjk2kyc" path="res://scenes/atom.tscn" id="1_icbjt"]
+
+[node name="hydrogen_atom" instance=ExtResource("1_icbjt")]
+value = 1
+
+[node name="Label" parent="." index="0"]
+offset_left = -8.0
+offset_right = 292.0
+text = "H"
+
+[node name="Sprite" parent="." index="1"]
+modulate = Color(0.2156, 0.57232, 0.98, 1)

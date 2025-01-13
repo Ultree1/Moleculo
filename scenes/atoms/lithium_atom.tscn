@@ -1,0 +1,12 @@
+[gd_scene load_steps=2 format=3 uid="uid://c7sm5k8w3icgd"]
+
+[ext_resource type="PackedScene" uid="uid://rlkyxbjk2kyc" path="res://scenes/atom.tscn" id="1_ocpqp"]
+
+[node name="atom" instance=ExtResource("1_ocpqp")]
+value = 3
+
+[node name="Label" parent="." index="0"]
+text = "Li"
+
+[node name="Sprite" parent="." index="1"]
+modulate = Color(0.544367, 0.7, 0.378, 1)

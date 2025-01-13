@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://dv04j8mt3nwnh"]
+
+[ext_resource type="PackedScene" uid="uid://rlkyxbjk2kyc" path="res://scenes/atom.tscn" id="1_xjq0j"]
+[ext_resource type="Texture2D" uid="uid://jcxfvfyrw8wm" path="res://sprites/Placeholder Blue Square.png" id="2_tte27"]
+
+[node name="atom" instance=ExtResource("1_xjq0j")]
+ability = "minus"
+
+[node name="Label" parent="." index="0"]
+offset_left = -8.0
+offset_top = -21.0
+offset_right = 220.0
+offset_bottom = 525.0
+scale = Vector2(0.07, 0.07)
+text = "-"
+
+[node name="Sprite" parent="." index="1"]
+modulate = Color(0.395667, 0.26, 1, 1)
+texture = ExtResource("2_tte27")
