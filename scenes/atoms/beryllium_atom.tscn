@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://cksd51xxl5l83"]
+
+[ext_resource type="PackedScene" uid="uid://rlkyxbjk2kyc" path="res://scenes/atom.tscn" id="1_na1rj"]
+
+[node name="atom" instance=ExtResource("1_na1rj")]
+value = 4
+
+[node name="Label" parent="." index="0"]
+offset_left = -10.0
+offset_right = 361.0
+text = "Be"
+
+[node name="Sprite" parent="." index="1"]
+modulate = Color(0.231403, 0.569988, 0.443826, 1)

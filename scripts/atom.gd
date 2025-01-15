@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 extends CharacterBody2D
 @onready var textLabel = $RichTextLabel
 @onready var value
@@ -9,11 +10,48 @@ var gridOffsetX
 var gridPosition = Vector2(0,0)
 func _physics_process(delta: float) -> void:
 	checkGrid()
+=======
+extends Node2D
+
+const PHI = 1.618033988749894848204586834
+
+@export var color: Color
+@export var value: int
+@export var ability: String
+@onready var label = $Label
+@onready var sprite = $Sprite
+@onready var grid = get_parent()
+@onready var anim = $AnimationPlayer
+@export var movement_time: float
+@export var total_merge_time: float
+@export var movement_speed:float
+var velocity = Vector2(0,0)
+>>>>>>> Stashed changes
 
 
 func _ready() -> void:
+<<<<<<< Updated upstream
 	get_parent().turnPassed.connect(self.on_turn_passed)
 	position = Vector2(gridPosition.x*500/grid.gridWidth + grid.gridOffsetX, gridPosition.y*500/grid.gridHeight + grid.gridOffsetY)
+=======
+	
+	if ability == null:
+		label.text = grid.atom_label[value]
+		sprite.self_modulate = Color(0,1,0)
+	appear()
+	
+	
+func move(x,y):
+	#var original_position = position
+	#velocity = direction*(grid.offset*movement_speed)
+	#await get_tree().create_timer(1/movement_speed).timeout
+	#velocity = Vector2(0,0)
+	#position = original_position + direction*grid.offset
+	
+	var movement = create_tween()
+	movement.tween_property($".", "position", grid.grid_to_pixel(x,y), movement_time)
+	pass
+>>>>>>> Stashed changes
 
 func on_turn_passed():
 	var x = gridPosition.x
