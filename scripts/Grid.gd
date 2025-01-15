@@ -39,6 +39,7 @@ var special_atoms = [
 
 var held_atom = random_atom()
 var held_atom_instance
+var lowest_atom_value = 1
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	held_atom = random_atom()
@@ -129,7 +130,7 @@ func merge_at(column, row):
 
 	
 func random_atom():
-	var rand = floor(randf_range(0,2))
+	var rand = floor(randf_range(0,3))
 	var atom = possible_atoms[rand]
 	return atom
 
@@ -139,7 +140,7 @@ func fill_array():
 			#choose a random number and store it
 			var rand = floor(randf_range(0,starting_atoms.size()))
 			#Instance piece from array
-			if randi_range(1, 2) == 1:
+			if randi_range(1, 5) == 1:
 				var atom = starting_atoms[rand].instantiate()
 				add_child(atom)
 				atom.position = grid_to_pixel(i, j)
