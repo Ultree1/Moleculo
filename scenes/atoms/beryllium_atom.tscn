@@ -11,4 +11,4 @@ offset_right = 361.0
 text = "Be"
 
 [node name="Sprite" parent="." index="1"]
-modulate = Color(0.435451, 0.537099, 0.327861, 1)
+modulate = Color(0.279133, 0.561656, 0.454283, 1)

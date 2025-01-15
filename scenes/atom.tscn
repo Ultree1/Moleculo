@@ -42,6 +42,8 @@ _data = {
 [node name="atom" type="Node2D"]
 scale = Vector2(4, 4)
 script = ExtResource("1_2t0b0")
+movement_time = 0.2
+total_merge_time = 0.2
 movement_speed = 3.0
 
 [node name="Label" type="Label" parent="."]

@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://dehbjhiuyybxc"]
+
+[ext_resource type="PackedScene" uid="uid://rlkyxbjk2kyc" path="res://scenes/atom.tscn" id="1_xbiu4"]
+
+[node name="atom" instance=ExtResource("1_xbiu4")]
+value = 8
+ability = "multiply"
+
+[node name="Label" parent="." index="0"]
+self_modulate = Color(0, 0, 0, 1)
+offset_left = -5.75
+offset_top = -11.0
+offset_right = 222.25
+offset_bottom = 535.0
+text = "*"

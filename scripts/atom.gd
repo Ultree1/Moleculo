@@ -10,7 +10,8 @@ var is_held_atom: bool
 @onready var sprite = $Sprite
 @onready var grid = get_parent()
 @onready var anim = $AnimationPlayer
-
+@export var movement_time: float
+@export var total_merge_time: float
 @export var movement_speed:float = 1
 var velocity = Vector2(0,0)
 
@@ -24,13 +25,10 @@ func _ready() -> void:
 	appear()
 	
 	
-func move(direction):
-	var original_position = position
-	velocity = direction*(grid.offset*movement_speed)
-	await get_tree().create_timer(1/movement_speed).timeout
-	velocity = Vector2(0,0)
-	position = original_position + direction*grid.offset
-	pass
+func move(x,y):
+	var movement = create_tween()
+	z_index = -2
+	movement.tween_property($".", "position", grid.grid_to_pixel(x,y), movement_time).set_trans(Tween.TRANS_CUBIC)
 
 func appear():
 	anim.play("appear")

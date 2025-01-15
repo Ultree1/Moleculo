@@ -25,12 +25,16 @@ var possible_atoms = [
 	preload("res://scenes/atoms/helium_atom.tscn"),
 	preload("res://scenes/atoms/lithium_atom.tscn"),
 	preload("res://scenes/atoms/beryllium_atom.tscn"),
-	
+	preload("res://scenes/atoms/boron_atom.tscn"),
+	preload("res://scenes/atoms/carbon_atom.tscn"),
+	preload("res://scenes/atoms/nitrogen_atom.tscn"),
+	preload("res://scenes/atoms/oxygen_atom.tscn")
 	]
 	
 var special_atoms = [
 	preload("res://scenes/atoms/plus.tscn"),
-	preload("res://scenes/atoms/minus.tscn")
+	preload("res://scenes/atoms/minus.tscn"),
+	preload("res://scenes/atoms/neutrino.tscn")
 ]
 
 var held_atom = random_atom()
@@ -55,63 +59,74 @@ func make_2d_array():
 	return array
 	
 func merge_at(column, row):
-	
+	print("merge called")
 	var storedValue = null
-	
+	var left = []
+	var right = []
+	var up = []
+	var down = []
 	var center = atomArray[column][row]
+	var merge_time = center.total_merge_time
+	for i in range(0,2):
+		left.append(atomArray[posmod(column-(i+1),width)][row])
+		right.append(atomArray[posmod(column+(i+1),width)][row])
+		up.append(atomArray[column][posmod(row+(i+1),width)])
+		down.append(atomArray[column][posmod(row-(i+1),width)])
 	
-	var left = atomArray[posmod(column-1,width)][row]
-	var right = atomArray[posmod(column+1,width)][row]
-	
-	var left2 = atomArray[posmod(column-2,width)][row]
-	var right2 = atomArray[posmod(column+2,width)][row]
-	
-	var up = atomArray[column][posmod(row+1,width)]
-	var down = atomArray[column][posmod(row-1,width)]
-	
-	var up2 = atomArray[column][posmod(row+2,width)]
-	var down2 = atomArray[column][posmod(row-2,width)]
-	
+	print(left)
 	#check if left and right neighboring atoms exist and aren't empty spaces
-	if left != null && right != null:
-		if left.value == right.value:
-			#storedValue is the value that the plus atom will end up being by the end of the merging process
-			if center.ability == "plus" && center != null:
-				storedValue = left.value
-			else:
-				storedValue = center.value
-			#delete left, right, and center atom
+	for i in range(0, 2):
+		if (left[i] != null && right[i] != null) && (left[i].value == right[i].value):
+				#storedValue is the value that the plus atom will end up being by the end of the merging process
+				if storedValue == null:
+					storedValue = left[i].value
+				else:
+					if left[i].value >= atomArray[column][row].value:
+						storedValue = left[i].value + 1
+					else:
+						storedValue += 1
+				#delete left, right, and center atom
+				left[i].z_index = -i
+				right[i].z_index = -i
+				left[i].move(column, row)
+				right[i].move(column, row)
+				await get_tree().create_timer(merge_time).timeout
+				delete_atom(left[i])
+				delete_atom(right[i])
+				delete_atom(column, row)
+				#spawn new atom with proper value
+				spawn_atom(column, row, possible_atoms[storedValue+1])
+				print(i) 
+		else:
+			break
+	for i in range(0, 2):
+		if (down[i] != null && up[i] != null) && (down[i].value == up[i].value):
+				#storedValue is the value that the plus atom will end up being by the end of the merging process
+				
+				if storedValue == null:
+					storedValue = down[i].value
+				else:
+					if up[i].value >= atomArray[column][row].value:
+						storedValue = down[i].value + 1
+					else:
+						storedValue += 1
+				#delete left, right, and center atom
+				down[i].z_index = -i
+				up[i].z_index = -i
+				down[i].move(column, row)
+				up[i].move(column, row)
+				await get_tree().create_timer(merge_time).timeout
+				delete_atom(up[i])
+				delete_atom(down[i])
+				delete_atom(column, row)
+				#spawn new atom with proper value
+				spawn_atom(column, row, possible_atoms[storedValue+1])
+				
+		else:
+			break
+	if storedValue != null:
+		grid_logic()
 
-			delete_atom(posmod(column-1,width), row)
-			delete_atom(posmod(column+1,width), row)
-			delete_atom(column, row)
-			#spawn new atom with proper value
-			spawn_atom(column, row, possible_atoms[storedValue+1])
-			
-			#pull all atoms in row towards plus atom
-			move_atom(posmod(column-2, width), row, posmod(column-1,width), row)
-			move_atom(posmod(column+2, width), row, posmod(column+1,width), row)
-			merge_at(column, row)
-			return
-			
-			
-	if down != null && up != null:
-		if down.value == up.value:
-			if center.ability == "plus" && center != null:
-				storedValue = up.value
-			else:
-				storedValue = center.value
-			#delete left and right atom, then the plus itself
-			delete_atom(down)
-			delete_atom(up)
-			delete_atom(column, row)
-			#replace plus with the final value
-			spawn_atom(column, row, possible_atoms[storedValue+1])
-			#MAKE SURE TO ADD CHECK FOR NULL INSTANCE IN ATOM ARRAY
-			move_atom(column, posmod(row+2, height), column, posmod(row+1, height))
-			move_atom(column, posmod(row-2, height), column, posmod(row-1, height))
-			merge_at(column, row)
-			return
 	
 func random_atom():
 	var rand = floor(randf_range(0,2))
@@ -157,9 +172,6 @@ func spawn_atom(x,y, type):
 	atom.position = grid_to_pixel(x, y)
 	atom.scale = Vector2(atom_scale, atom_scale)
 	atomArray[x][y] = atom
-	if atomArray[x][y].ability == "plus":
-		merge_at(x,y)
-		print(atomArray)
 
 func move_atom(x1,y1, x2,y2):
 	var atom = atomArray[x1][y1]
@@ -169,11 +181,19 @@ func move_atom(x1,y1, x2,y2):
 
 func atom_select():
 	if Input.is_action_just_pressed("select_plus"):
-		cycle_held_atom(possible_atoms[0])
+		pass
 	if Input.is_action_just_pressed("select_hydrogen"):
 		cycle_held_atom(possible_atoms[1])
 	if Input.is_action_just_pressed("select_helium"):
+		cycle_held_atom(possible_atoms[2])
+	if Input.is_action_just_pressed("key_q"):
+		cycle_held_atom(possible_atoms[0])
+	if Input.is_action_just_pressed("key_w"):
 		cycle_held_atom(special_atoms[1])
+	if Input.is_action_just_pressed("key_e"):
+		cycle_held_atom(special_atoms[2])
+	if Input.is_action_just_pressed("key_r"):
+		cycle_held_atom(possible_atoms[0])
 
 func erase_input():
 	if Input.is_action_pressed("ui_erase"):
@@ -221,21 +241,25 @@ func touch_input():
 				if atomArray[x][y] != null:
 					cycle_held_atom(atomArray[x][y])
 					delete_atom(atomArray[x][y])
-			if atomArray[x][y] == null:
+			if held_atom_instance.ability == "multiply":
+				if atomArray[x][y] != null:
+					cycle_held_atom(atomArray[x][y])
+			if atomArray[x][y] == null && (held_atom_instance.ability == "" or held_atom_instance.ability == "plus"):
 				#delete last held atom instance
 				held_atom_instance.queue_free()
 				
 				spawn_atom(x,y, held_atom)
 				#update held atom with random atom (random atom returns an atom instance of 
 				cycle_held_atom(random_atom())
-
+				grid_logic()
+func grid_logic():
+	for i in width:
+		for j in height:
+			if atomArray[i][j] != null && atomArray[i][j].ability == "plus":
+				merge_at(i,j)
 				
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:
 	touch_input()
 	erase_input()
 	atom_select()
-	for i in width:
-		for j in height:
-			if atomArray[i][j] != null && atomArray[i][j].ability == "plus":
-				merge_at(i,j)
