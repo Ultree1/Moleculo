@@ -7,6 +7,9 @@ extends Node2D
 @export var y_start:int
 @export var offset:int
 @export var atom_scale:float
+@export var next_atom_scale: float
+@export var total_merge_time: float
+
 
 var atom_label = [
 	"?", "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne", "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr", "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "I", "Te", "Xe", "Cs", "Ba", "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu", "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn", "Fr", "Ra", "Ac", "Th", "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og"
@@ -20,7 +23,7 @@ var starting_atoms = [
 ]
 
 var possible_atoms = [
-	preload("res://scenes/atoms/plus.tscn"),
+	preload("res://scenes/special atoms/plus.tscn"),
 	preload("res://scenes/atoms/hydrogen_atom.tscn"),
 	preload("res://scenes/atoms/helium_atom.tscn"),
 	preload("res://scenes/atoms/lithium_atom.tscn"),
@@ -28,29 +31,46 @@ var possible_atoms = [
 	preload("res://scenes/atoms/boron_atom.tscn"),
 	preload("res://scenes/atoms/carbon_atom.tscn"),
 	preload("res://scenes/atoms/nitrogen_atom.tscn"),
-	preload("res://scenes/atoms/oxygen_atom.tscn")
+	preload("res://scenes/atoms/oxygen_atom.tscn"),
+	preload("res://scenes/atoms/fluorine_atom.tscn")
 	]
 	
 var special_atoms = [
-	preload("res://scenes/atoms/plus.tscn"),
-	preload("res://scenes/atoms/minus.tscn"),
-	preload("res://scenes/atoms/neutrino.tscn")
+	preload("res://scenes/special atoms/plus.tscn"),
+	preload("res://scenes/special atoms/minus.tscn"),
+	preload("res://scenes/special atoms/neutrino.tscn"),
+	preload("res://scenes/special atoms/gluon.tscn")
 ]
 
-var held_atom = random_atom()
-var held_atom_instance
+var grid_slot = preload("res://scenes/grid_slot.tscn")
+
+var held_atom = []
+var held_atom_instance = []
 var lowest_atom_value = 1
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	held_atom = random_atom()
-	held_atom_instance = held_atom.instantiate()
-	add_child(held_atom_instance)
-	held_atom_instance.position = Vector2(288,900)
-	held_atom_instance.scale = Vector2(0, 0)
+	for i in 5:
+		held_atom.append(random_atom())
+		held_atom_instance.append(held_atom[i].instantiate())
+		add_child(held_atom_instance[i])
+		held_atom_instance[i].position = Vector2(288+ (i*offset),900)
+		if i == 0:
+			held_atom_instance[i].scale = Vector2(atom_scale, atom_scale)
+		else:
+			held_atom_instance[i].scale = Vector2(next_atom_scale, next_atom_scale)
+	
+	print("HELD ATOMS")
+	print(held_atom_instance)
 	atomArray = make_2d_array()
+	spawn_grid_slots()
 	fill_array()
-	print(atomArray)
 
+func spawn_grid_slots():
+	for i in width:
+		for j in height:
+			var slot = grid_slot.instantiate()
+			slot.position = grid_to_pixel(i,j)
+			add_child(slot)
 func make_2d_array():
 	var array = []
 	for i in width:
@@ -159,7 +179,7 @@ func pixel_to_grid(pixel_x, pixel_y):
 
 # SHOULD ONLY ACCEPT PACKED / PRELOADED SCENES, do not pass in an already instanced scene
 # UPDATE: can accept both uninstanced and instanced scenes :) all is well
-func spawn_atom(x,y, type):
+func spawn_atom(x,y, type, appear = true):
 	var atom
 	if type == null:
 		delete_atom(x,y)
@@ -173,12 +193,19 @@ func spawn_atom(x,y, type):
 	atom.position = grid_to_pixel(x, y)
 	atom.scale = Vector2(atom_scale, atom_scale)
 	atomArray[x][y] = atom
+	if appear: atom.appear()
 
 func move_atom(x1,y1, x2,y2):
+	x1 = posmod(x1, width)
+	y1 = posmod(y1, height)
+	x2 = posmod(x2, width)
+	y2 = posmod(y2, height)
 	var atom = atomArray[x1][y1]
-	delete_atom(x2,y2)
-	spawn_atom(x2,y2, atom)
-	delete_atom(x1,y1)
+	if atom != null:
+		atom.move(x2,y2)
+		await get_tree().create_timer(atom.total_merge_time).timeout
+		atomArray[x1][y1] = null
+		atomArray[x2][y2] = atom
 
 func atom_select():
 	if Input.is_action_just_pressed("select_plus"):
@@ -194,7 +221,7 @@ func atom_select():
 	if Input.is_action_just_pressed("key_e"):
 		cycle_held_atom(special_atoms[2])
 	if Input.is_action_just_pressed("key_r"):
-		cycle_held_atom(possible_atoms[0])
+		cycle_held_atom(special_atoms[3])
 
 func erase_input():
 	if Input.is_action_pressed("ui_erase"):
@@ -217,42 +244,109 @@ func delete_atom(x,y = null):
 			x.queue_free()
 			x = null
 
-func cycle_held_atom(atom):
-	if held_atom_instance.has_method("queue_free"):
-		held_atom_instance.queue_free()
-	if atom.has_method("instantiate"):
-		held_atom = atom
-	else:
-		held_atom = possible_atoms[atom.value]
-	held_atom_instance = held_atom.instantiate()
-	add_child(held_atom_instance)
-	held_atom_instance.position = Vector2(288,900)
-	held_atom_instance.scale = Vector2(atom_scale, atom_scale)
-	pass
+func cycle_held_atom(atom, position = 0):
+	
+	#clear the held atom instance array.
+	
+		
+	if position == 4:
+		held_atom.pop_front()
+		
+		if atom.has_method("instantiate"):
+			held_atom.push_back(atom)
+		else:
+			held_atom.push_back(possible_atoms[atom.value])
+
+	if position == 0:
+		held_atom.pop_front()
+		
+		if atom.has_method("instantiate"):
+			held_atom.push_front(atom)
+		else:
+			held_atom.push_front(possible_atoms[atom.value])
+	
+	for i in 5:
+		if held_atom_instance[i].has_method("queue_free"):
+			held_atom_instance[i].queue_free()
+	held_atom_instance.clear()
+	
+	for i in 5:
+		var new_atom = held_atom[i].instantiate()
+		held_atom_instance.append(new_atom)
+		new_atom.position = Vector2(288+(i*offset),900)
+		if i == 0:
+			new_atom.scale = Vector2(atom_scale, atom_scale)
+		else:
+			new_atom.scale = Vector2(next_atom_scale, next_atom_scale)
+		add_child(held_atom_instance[i])
+		#insert passed atom into held_atom array at passed position
+
+		
+		
+#swiping variables
+var x1
+var y1
+var x2
+var y2
+var grid_position1
 
 func touch_input():
 	
-	if Input.is_action_just_released("ui_touch"):
-		var grid_position = pixel_to_grid(get_global_mouse_position().x, get_global_mouse_position().y)
-		if grid_position.x >= 0 && grid_position.x < width && grid_position.y >= 0 && grid_position.y < width:
-			var x = grid_position.x
-			var y = grid_position.y
+	if held_atom_instance[0].ability == "move":
+		
+		if Input.is_action_just_pressed("ui_touch"):
+			grid_position1 = pixel_to_grid(get_global_mouse_position().x, get_global_mouse_position().y)
 			
-			if held_atom_instance.ability == "minus":
-				if atomArray[x][y] != null:
-					cycle_held_atom(atomArray[x][y])
-					delete_atom(atomArray[x][y])
-			if held_atom_instance.ability == "multiply":
-				if atomArray[x][y] != null:
-					cycle_held_atom(atomArray[x][y])
-			if atomArray[x][y] == null && (held_atom_instance.ability == "" or held_atom_instance.ability == "plus"):
-				#delete last held atom instance
-				held_atom_instance.queue_free()
+			
+			if grid_position1.x >= 0 && grid_position1.x < width && grid_position1.y >= 0 && grid_position1.y < width:
+				x1 = get_global_mouse_position().x
+				y1 = get_global_mouse_position().y
+				print(x1)
+		if Input.is_action_just_released("ui_touch"):
+			x2 = get_global_mouse_position().x
+			y2 = get_global_mouse_position().y
+
+			print(x2)
+			var x_diff = x2-x1
+			var y_diff = y2-y1
+			var direction
+			if abs(x_diff) > abs(y_diff):
+				direction = Vector2(sign(x_diff), 0)
+			else:
+				direction = Vector2(0, -sign(y_diff))
+			print(direction)
+			#NOTE: FIX GLUON, MAKE IT SHIFT ENTIRE ROW / COLUMN PROPERLY
+			for i in width:
+				if atomArray[grid_position1.x][grid_position1.y] != null && direction != Vector2(0,0):
+					move_atom(grid_position1.x + (i*direction.x), grid_position1.y + (i*direction.y), grid_position1.x+((i*direction.x)+direction.x), grid_position1.y+((i*direction.y)+direction.y))
+			await get_tree().create_timer(total_merge_time).timeout
+			cycle_held_atom(random_atom(), 4)
+			grid_logic()
+			
+	else:	
+		
+		if Input.is_action_just_released("ui_touch"):
+			var grid_position = pixel_to_grid(get_global_mouse_position().x, get_global_mouse_position().y)
+			if grid_position.x >= 0 && grid_position.x < width && grid_position.y >= 0 && grid_position.y < width:
+				var x = grid_position.x
+				var y = grid_position.y
 				
-				spawn_atom(x,y, held_atom)
-				#update held atom with random atom (random atom returns an atom instance of 
-				cycle_held_atom(random_atom())
-				grid_logic()
+				if held_atom_instance[0].ability == "minus":
+					if atomArray[x][y] != null:
+						atomArray[x][y].move(288 ,900, false, 2)
+						await get_tree().create_timer(atomArray[x][y].total_merge_time).timeout
+						cycle_held_atom(atomArray[x][y], 0)
+						delete_atom(atomArray[x][y])
+				if held_atom_instance[0].ability == "multiply":
+					if atomArray[x][y] != null:
+						cycle_held_atom(atomArray[x][y], 0)
+				if atomArray[x][y] == null && (held_atom_instance[0].ability == "" or held_atom_instance[0].ability == "plus"):
+					#delete last held atom instance
+					
+					spawn_atom(x,y, held_atom[0])
+					#update held atom with random atom (random atom returns an atom instance of 
+					cycle_held_atom(random_atom(), 4)
+					grid_logic()
 func grid_logic():
 	for i in width:
 		for j in height:

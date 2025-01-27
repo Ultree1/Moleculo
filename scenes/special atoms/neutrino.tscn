@@ -1,8 +1,8 @@
 [gd_scene load_steps=2 format=3 uid="uid://dehbjhiuyybxc"]
 
-[ext_resource type="PackedScene" uid="uid://rlkyxbjk2kyc" path="res://scenes/atom.tscn" id="1_xbiu4"]
+[ext_resource type="PackedScene" uid="uid://rlkyxbjk2kyc" path="res://scenes/atom.tscn" id="1_w0tnm"]
 
-[node name="atom" instance=ExtResource("1_xbiu4")]
+[node name="atom" instance=ExtResource("1_w0tnm")]
 value = 8
 ability = "multiply"
 

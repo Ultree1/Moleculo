@@ -11,8 +11,10 @@ var is_held_atom: bool
 @onready var grid = get_parent()
 @onready var anim = $AnimationPlayer
 @export var movement_time: float
+@export var appear_time: float
 @export var total_merge_time: float
 @export var movement_speed:float = 1
+@export var spawn_chance: int
 var velocity = Vector2(0,0)
 
 
@@ -22,16 +24,19 @@ func _ready() -> void:
 	if ability == null:
 		label.text = grid.atom_label[value]
 		sprite.self_modulate = Color(0,1,0)
-	appear()
-	
-	
-func move(x,y):
-	var movement = create_tween()
-	z_index = -2
-	movement.tween_property($".", "position", grid.grid_to_pixel(x,y), movement_time).set_trans(Tween.TRANS_CUBIC)
 
+	
+	
+	
+func move(x,y, grid_movement = true, set_z_index = -2):
+	var movement = create_tween()
+	z_index = set_z_index
+	if grid_movement: movement.tween_property($".", "position", grid.grid_to_pixel(x,y), movement_time).set_trans(Tween.TRANS_CUBIC)
+	else: movement.tween_property($".", "position", Vector2(x,y), movement_time).set_trans(Tween.TRANS_CUBIC)
 func appear():
 	anim.play("appear")
+	#var appear = create_tween()
+	#appear.tween_property($".", "scale", grid.atom_scale, appear_time)
 	
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:

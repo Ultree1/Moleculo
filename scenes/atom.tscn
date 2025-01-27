@@ -1,7 +1,7 @@
 [gd_scene load_steps=6 format=3 uid="uid://rlkyxbjk2kyc"]
 
 [ext_resource type="Script" path="res://scripts/atom.gd" id="1_2t0b0"]
-[ext_resource type="Texture2D" uid="uid://c6via6i6u2ow" path="res://sprites/Placeholder White Square.png" id="2_t6elw"]
+[ext_resource type="Texture2D" uid="uid://dk62l2kcdwonw" path="res://sprites/dbjfuiq-05fc4767-d795-4a77-a664-f8b75df70fb7.png" id="3_2sd5x"]
 
 [sub_resource type="Animation" id="Animation_kh485"]
 length = 0.001
@@ -43,6 +43,7 @@ _data = {
 scale = Vector2(4, 4)
 script = ExtResource("1_2t0b0")
 movement_time = 0.2
+appear_time = 1.0
 total_merge_time = 0.2
 movement_speed = 3.0
 
@@ -57,11 +58,20 @@ theme_override_font_sizes/font_size = 300
 text = "1"
 horizontal_alignment = 1
 vertical_alignment = 1
+metadata/_edit_use_anchors_ = true
 
 [node name="Sprite" type="Sprite2D" parent="."]
-texture = ExtResource("2_t6elw")
+position = Vector2(0, -0.25)
+scale = Vector2(0.0238647, 0.0238647)
+texture = ExtResource("3_2sd5x")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
 "": SubResource("AnimationLibrary_j8xdj")
 }
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(0.406251, 0.156251)
+scale = Vector2(0.0241089, 0.0241089)
+texture = ExtResource("3_2sd5x")

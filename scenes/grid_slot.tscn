@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://txni045a5h8i"]
+
+[ext_resource type="Texture2D" uid="uid://dk62l2kcdwonw" path="res://sprites/dbjfuiq-05fc4767-d795-4a77-a664-f8b75df70fb7.png" id="1_y3cur"]
+
+[node name="grid slot" type="Node2D"]
+scale = Vector2(4, 4)
+
+[node name="Sprite" type="Sprite2D" parent="."]
+modulate = Color(0.446777, 0.446777, 0.446777, 1)
+z_index = -10
+position = Vector2(0, -0.25)
+scale = Vector2(0.0238647, 0.0238647)
+texture = ExtResource("1_y3cur")
