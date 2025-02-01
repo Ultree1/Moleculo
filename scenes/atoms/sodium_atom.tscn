@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://cdgo1xvhgqvd0"]
+
+[ext_resource type="PackedScene" uid="uid://rlkyxbjk2kyc" path="res://scenes/atom.tscn" id="1_w6jqc"]
+
+[node name="atom" instance=ExtResource("1_w6jqc")]
+value = 11
+
+[node name="Label" parent="." index="0"]
+offset_left = -10.5
+offset_top = -14.25
+offset_right = 398.5
+offset_bottom = 531.75
+text = "Na"
+
+[node name="Sprite" parent="." index="1"]
+modulate = Color(0.513836, 0.530675, 0.283316, 1)

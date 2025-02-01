@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://bhhyqa4s4esgi"]
+
+[ext_resource type="PackedScene" uid="uid://rlkyxbjk2kyc" path="res://scenes/atom.tscn" id="1_0t5as"]
+
+[node name="atom" instance=ExtResource("1_0t5as")]
+value = 12
+
+[node name="Label" parent="." index="0"]
+offset_left = -12.5
+offset_right = 431.5
+text = "Mg"
+
+[node name="Sprite" parent="." index="1"]
+modulate = Color(0.508382, 0.488068, 0.518197, 1)

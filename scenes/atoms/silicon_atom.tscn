@@ -1,0 +1,14 @@
+[gd_scene load_steps=2 format=3 uid="uid://yg3j3b1vgrrx"]
+
+[ext_resource type="PackedScene" uid="uid://rlkyxbjk2kyc" path="res://scenes/atom.tscn" id="1_qr5t2"]
+
+[node name="atom" instance=ExtResource("1_qr5t2")]
+value = 14
+
+[node name="Label" parent="." index="0"]
+offset_left = -11.75
+offset_right = 432.25
+text = "Si"
+
+[node name="Sprite" parent="." index="1"]
+modulate = Color(0.4472, 0.364, 0.52, 1)

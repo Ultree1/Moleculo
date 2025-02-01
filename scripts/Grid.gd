@@ -32,7 +32,13 @@ var possible_atoms = [
 	preload("res://scenes/atoms/carbon_atom.tscn"),
 	preload("res://scenes/atoms/nitrogen_atom.tscn"),
 	preload("res://scenes/atoms/oxygen_atom.tscn"),
-	preload("res://scenes/atoms/fluorine_atom.tscn")
+	preload("res://scenes/atoms/fluorine_atom.tscn"),
+	preload("res://scenes/atoms/neon_atom.tscn"),
+	preload("res://scenes/atoms/sodium_atom.tscn"),
+	preload("res://scenes/atoms/magnesium_atom.tscn"),
+	preload("res://scenes/atoms/aluminum_atom.tscn"),
+	preload("res://scenes/atoms/silicon_atom.tscn"),
+	
 	]
 	
 var special_atoms = [
@@ -42,6 +48,15 @@ var special_atoms = [
 	preload("res://scenes/special atoms/gluon.tscn")
 ]
 
+var weighted_pool = []
+var smallest_value = 1
+var minimum_weight = 1
+var maximum_weight = 3
+
+var rounds_passed = 0
+var plusless_rounds = 0
+var level = 0
+
 var grid_slot = preload("res://scenes/grid_slot.tscn")
 
 var held_atom = []
@@ -49,6 +64,10 @@ var held_atom_instance = []
 var lowest_atom_value = 1
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	update_pool()
+	maximum_weight = 3
+	minimum_weight = 1
+	
 	for i in 5:
 		held_atom.append(random_atom())
 		held_atom_instance.append(held_atom[i].instantiate())
@@ -71,6 +90,7 @@ func spawn_grid_slots():
 			var slot = grid_slot.instantiate()
 			slot.position = grid_to_pixel(i,j)
 			add_child(slot)
+			
 func make_2d_array():
 	var array = []
 	for i in width:
@@ -150,9 +170,27 @@ func merge_at(column, row):
 
 	
 func random_atom():
-	var rand = floor(randf_range(0,3))
-	var atom = possible_atoms[rand]
+	var atom = weighted_pool.pick_random()
 	return atom
+
+func level_up():
+	level += 1
+	print(level)
+	update_pool()
+
+func update_pool():
+	weighted_pool = []
+	#give pluses a weight of 5
+	for i in 5:
+		weighted_pool.append(special_atoms[0])
+	#give minuses a weight of 1
+	for i in 1:
+		weighted_pool.append(special_atoms[1])
+	for i in maximum_weight:
+		for j in 5:
+			weighted_pool.append(possible_atoms[minimum_weight+i+level])
+	for i in weighted_pool.size():
+		print(weighted_pool[i].instantiate().value)
 
 func fill_array():
 	for i in width:
@@ -222,6 +260,9 @@ func atom_select():
 		cycle_held_atom(special_atoms[2])
 	if Input.is_action_just_pressed("key_r"):
 		cycle_held_atom(special_atoms[3])
+		level_up()
+	if Input.is_action_just_pressed("store_atom"):
+		cycle_held_atom(random_atom(), 4)
 
 func erase_input():
 	if Input.is_action_pressed("ui_erase"):
@@ -243,6 +284,38 @@ func delete_atom(x,y = null):
 		if x != null:
 			x.queue_free()
 			x = null
+
+func slide_atom(x, y, direction: Vector2):
+	var moveNum = null
+	# if the slot next to the atom is open, just move the atom.
+	
+	if get_atom(x + (direction.x), y + (direction.y)) == null:
+		move_atom(x, y, x+direction.x, y+direction.y)
+	#otherwise, check in the direction of the swipe for the next empty space.
+	else:
+		
+		for i in width:
+			if get_atom(x + (direction.x * i), y + (direction.y * i)) == null:
+				moveNum = i
+				break
+		
+		#if the row / column is full, slide the entire row / column.
+		if moveNum == null:
+			for i in width:
+				get_atom(x+(i*direction.x),y+(i*direction.y)).move()
+		else:
+			print(moveNum)
+			for j in moveNum:
+				var movementOffset = moveNum-j
+				move_atom(x+(direction.x*(movementOffset-1)), y+(direction.y*(movementOffset-1)), x+(direction.x*(movementOffset)), y+(direction.y*(movementOffset)))
+			
+
+#automatically posmods all inputs, can accept grid coordinates above 5
+#better to use this than directly reference atomArray
+func get_atom(x,y):
+	x = posmod(x,width)
+	y = posmod(y,height)
+	return atomArray[x][y]
 
 func cycle_held_atom(atom, position = 0):
 	
@@ -316,10 +389,11 @@ func touch_input():
 				direction = Vector2(0, -sign(y_diff))
 			print(direction)
 			#NOTE: FIX GLUON, MAKE IT SHIFT ENTIRE ROW / COLUMN PROPERLY
-			for i in width:
-				if atomArray[grid_position1.x][grid_position1.y] != null && direction != Vector2(0,0):
-					move_atom(grid_position1.x + (i*direction.x), grid_position1.y + (i*direction.y), grid_position1.x+((i*direction.x)+direction.x), grid_position1.y+((i*direction.y)+direction.y))
+			
+			if atomArray[grid_position1.x][grid_position1.y] != null && direction != Vector2(0,0) && direction != null:
+				slide_atom(grid_position1.x, grid_position1.y, direction)
 			await get_tree().create_timer(total_merge_time).timeout
+			rounds_passed += 1
 			cycle_held_atom(random_atom(), 4)
 			grid_logic()
 			
@@ -337,14 +411,22 @@ func touch_input():
 						await get_tree().create_timer(atomArray[x][y].total_merge_time).timeout
 						cycle_held_atom(atomArray[x][y], 0)
 						delete_atom(atomArray[x][y])
+						
 				if held_atom_instance[0].ability == "multiply":
 					if atomArray[x][y] != null:
 						cycle_held_atom(atomArray[x][y], 0)
+						
 				if atomArray[x][y] == null && (held_atom_instance[0].ability == "" or held_atom_instance[0].ability == "plus"):
 					#delete last held atom instance
 					
 					spawn_atom(x,y, held_atom[0])
 					#update held atom with random atom (random atom returns an atom instance of 
+					#pass round and level up every 20 rounds
+					rounds_passed += 1
+					if(rounds_passed % 20 == 0):
+						level_up()
+					print(rounds_passed)
+					print(level)
 					cycle_held_atom(random_atom(), 4)
 					grid_logic()
 func grid_logic():
