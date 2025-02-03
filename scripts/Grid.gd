@@ -47,12 +47,14 @@ var special_atoms = [
 	preload("res://scenes/special atoms/neutrino.tscn"),
 	preload("res://scenes/special atoms/gluon.tscn")
 ]
-
+#atom spawning variables
 var weighted_pool = []
 var smallest_value = 1
 var minimum_weight = 1
 var maximum_weight = 3
 
+#game variables
+var score = 0
 var rounds_passed = 0
 var plusless_rounds = 0
 var level = 0
@@ -219,6 +221,8 @@ func pixel_to_grid(pixel_x, pixel_y):
 # UPDATE: can accept both uninstanced and instanced scenes :) all is well
 func spawn_atom(x,y, type, appear = true):
 	var atom
+	x = posmod(x, width)
+	y = posmod(y, height)
 	if type == null:
 		delete_atom(x,y)
 		return
@@ -247,7 +251,7 @@ func move_atom(x1,y1, x2,y2):
 
 func atom_select():
 	if Input.is_action_just_pressed("select_plus"):
-		pass
+		level_up()
 	if Input.is_action_just_pressed("select_hydrogen"):
 		cycle_held_atom(possible_atoms[1])
 	if Input.is_action_just_pressed("select_helium"):
@@ -260,7 +264,7 @@ func atom_select():
 		cycle_held_atom(special_atoms[2])
 	if Input.is_action_just_pressed("key_r"):
 		cycle_held_atom(special_atoms[3])
-		level_up()
+		
 	if Input.is_action_just_pressed("store_atom"):
 		cycle_held_atom(random_atom(), 4)
 
@@ -276,7 +280,10 @@ func erase_input():
 
 #Can accept an atom from atomArray OR coordinates in the form of an int or a float.
 func delete_atom(x,y = null):
+	
 	if typeof(x) == TYPE_INT or typeof(x) == TYPE_FLOAT:
+		x = posmod(x,width)
+		y = posmod(y,height)
 		if atomArray[x][y] != null:
 			atomArray[x][y].queue_free()
 			atomArray[x][y] = null
@@ -300,9 +307,21 @@ func slide_atom(x, y, direction: Vector2):
 				break
 		
 		#if the row / column is full, slide the entire row / column.
+		#newAtomRow is the new position the atom row should be in, first move all atoms in desired direction (cosmetically)
+		#then seamlessly update the grid by deleting the entire row and respawning atoms where they should be
 		if moveNum == null:
+			var newAtomRow = []
 			for i in width:
-				get_atom(x+(i*direction.x),y+(i*direction.y)).move()
+				var atom = get_atom(x+((i-abs(direction.x))*direction.x),y+((i-abs(direction.y))*direction.y))
+				newAtomRow.append(atom)
+				atom.move(direction)
+				
+			await get_tree().create_timer(possible_atoms[1].instantiate().total_merge_time).timeout
+
+			for i in width:
+				var atom = get_atom(x+(i*direction.x),y+(i*direction.y))
+				delete_atom(x+(i*direction.x),y+(i*direction.y))
+				spawn_atom(x+(i*direction.x),y+(i*direction.y),newAtomRow[i], false)
 		else:
 			print(moveNum)
 			for j in moveNum:
@@ -375,7 +394,7 @@ func touch_input():
 				x1 = get_global_mouse_position().x
 				y1 = get_global_mouse_position().y
 				print(x1)
-		if Input.is_action_just_released("ui_touch"):
+		if Input.is_action_just_released("ui_touch") && atomArray[grid_position1.x][grid_position1.y] != null:
 			x2 = get_global_mouse_position().x
 			y2 = get_global_mouse_position().y
 
@@ -392,10 +411,10 @@ func touch_input():
 			
 			if atomArray[grid_position1.x][grid_position1.y] != null && direction != Vector2(0,0) && direction != null:
 				slide_atom(grid_position1.x, grid_position1.y, direction)
-			await get_tree().create_timer(total_merge_time).timeout
-			rounds_passed += 1
-			cycle_held_atom(random_atom(), 4)
-			grid_logic()
+				await get_tree().create_timer(total_merge_time).timeout
+				rounds_passed += 1
+				cycle_held_atom(random_atom(), 4)
+				grid_logic()
 			
 	else:	
 		

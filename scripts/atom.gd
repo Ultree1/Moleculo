@@ -28,11 +28,18 @@ func _ready() -> void:
 	
 	
 	
-func move(x,y, grid_movement = true, set_z_index = -2):
+func move(x,y = 0, grid_movement = true, set_z_index = -2):
 	var movement = create_tween()
 	z_index = set_z_index
-	if grid_movement: movement.tween_property($".", "position", grid.grid_to_pixel(x,y), movement_time).set_trans(Tween.TRANS_CUBIC)
-	else: movement.tween_property($".", "position", Vector2(x,y), movement_time).set_trans(Tween.TRANS_CUBIC)
+	if type_string(typeof(x)) == "Vector2":
+		var gridPosition = grid.pixel_to_grid(position.x, position.y)
+		var newGridPosition = Vector2(posmod(gridPosition.x + x.x, grid.width), posmod(gridPosition.y + x.y, grid.height))
+		var newPixelPosition = grid.grid_to_pixel(newGridPosition.x, newGridPosition.y)
+		movement.tween_property($".", "position", newPixelPosition, movement_time).set_trans(Tween.TRANS_CUBIC)
+	else:
+		
+		if grid_movement: movement.tween_property($".", "position", grid.grid_to_pixel(x,y), movement_time).set_trans(Tween.TRANS_CUBIC)
+		else: movement.tween_property($".", "position", Vector2(x,y), movement_time).set_trans(Tween.TRANS_CUBIC)
 func appear():
 	anim.play("appear")
 	#var appear = create_tween()
