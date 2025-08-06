@@ -1,0 +1,35 @@
+[gd_scene load_steps=6 format=3 uid="uid://dwvs5011f506d"]
+
+[ext_resource type="FontFile" uid="uid://j8wucnot8278" path="res://fonts/Godot-Fontpack-d244bf6170b399a6d4d26a0d906058ddf2dafdf1/fonts/montreal/Montreal-Bold.ttf" id="1_6iuya"]
+[ext_resource type="Texture2D" uid="uid://bxpgn37a3ir7r" path="res://sprites/Circle.png" id="2_uk6or"]
+[ext_resource type="Script" uid="uid://ckc64c5xxwf6h" path="res://scripts/powerup.gd" id="3_bmfpq"]
+
+[sub_resource type="Theme" id="Theme_l224l"]
+default_font = ExtResource("1_6iuya")
+default_font_size = 100
+
+[sub_resource type="Theme" id="Theme_p7g7m"]
+default_font = ExtResource("1_6iuya")
+default_font_size = 100
+
+[node name="PowerUpButton" type="Button"]
+self_modulate = Color(0.972549, 0.317647, 0.847059, 1)
+offset_right = 566.0
+offset_bottom = 566.0
+theme = SubResource("Theme_l224l")
+icon = ExtResource("2_uk6or")
+flat = true
+autowrap_mode = 2
+script = ExtResource("3_bmfpq")
+
+[node name="Cooldown" type="Label" parent="."]
+self_modulate = Color(0.903715, 0.695695, 0.947178, 1)
+layout_mode = 0
+offset_left = 179.512
+offset_top = 112.194
+offset_right = 248.512
+offset_bottom = 235.194
+scale = Vector2(2.84717, 2.84717)
+theme = SubResource("Theme_p7g7m")
+text = "0"
+horizontal_alignment = 1

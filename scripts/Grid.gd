@@ -10,11 +10,12 @@ extends Node2D
 @export var next_atom_scale: float
 @export var total_merge_time: float
 
-
+#Stores all label text for each atom type
 var atom_label = [
 	"?", "H", "He", "Li", "Be", "B", "C", "N", "O", "F", "Ne", "Na", "Mg", "Al", "Si", "P", "S", "Cl", "Ar", "K", "Ca", "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu", "Zn", "Ga", "Ge", "As", "Se", "Br", "Kr", "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Tc", "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "I", "Te", "Xe", "Cs", "Ba", "La", "Ce", "Pr", "Nd", "Pm", "Sm", "Eu", "Gd", "Tb", "Dy", "Ho", "Er", "Tm", "Yb", "Lu", "Hf", "Ta", "W", "Re", "Os", "Ir", "Pt", "Au", "Hg", "Tl", "Pb", "Bi", "Po", "At", "Rn", "Fr", "Ra", "Ac", "Th", "Pa", "U", "Np", "Pu", "Am", "Cm", "Bk", "Cf", "Es", "Fm", "Md", "No", "Lr", "Rf", "Db", "Sg", "Bh", "Hs", "Mt", "Ds", "Rg", "Cn", "Nh", "Fl", "Mc", "Lv", "Ts", "Og"
 ]
 
+#Stores the live game board
 var atomArray = []
 
 var starting_atoms = [
@@ -101,8 +102,14 @@ func make_2d_array():
 			array[i].append(null);
 	return array
 	
+signal addScore(value)
+func add_score(value):
+	addScore.emit(value)
+	
 func merge_at(column, row):
 	print("merge called")
+	#create four arrays that store the neighbors of the merge spot in order
+	#first member of the array "left" is the first neighbor to the left, second member is second to left, etc 
 	var storedValue = null
 	var left = []
 	var right = []
@@ -111,14 +118,15 @@ func merge_at(column, row):
 	var center = atomArray[column][row]
 	var merge_time = center.total_merge_time
 	for i in range(0,2):
-		left.append(atomArray[posmod(column-(i+1),width)][row])
-		right.append(atomArray[posmod(column+(i+1),width)][row])
-		up.append(atomArray[column][posmod(row+(i+1),width)])
-		down.append(atomArray[column][posmod(row-(i+1),width)])
+		left.append(get_atom(column-(i+1),row))
+		right.append(get_atom(column+(i+1),row))
+		up.append(get_atom(column, row+(i+1)))
+		down.append(get_atom(column, row-(i+1)))
 	
 	print(left)
 	#check if left and right neighboring atoms exist and aren't empty spaces
 	for i in range(0, 2):
+		#if the left and right neighbors aren't empty, and are the same value, merge.
 		if (left[i] != null && right[i] != null) && (left[i].value == right[i].value):
 				#storedValue is the value that the plus atom will end up being by the end of the merging process
 				if storedValue == null:
@@ -128,7 +136,7 @@ func merge_at(column, row):
 						storedValue = left[i].value + 1
 					else:
 						storedValue += 1
-				#delete left, right, and center atom
+				#animate the left and right atoms sliding inwards, then delete left, right, and center atom
 				left[i].z_index = -i
 				right[i].z_index = -i
 				left[i].move(column, row)
@@ -139,6 +147,7 @@ func merge_at(column, row):
 				delete_atom(column, row)
 				#spawn new atom with proper value
 				spawn_atom(column, row, possible_atoms[storedValue+1])
+				add_score(storedValue+1)
 				print(i) 
 		else:
 			break
@@ -164,9 +173,11 @@ func merge_at(column, row):
 				delete_atom(column, row)
 				#spawn new atom with proper value
 				spawn_atom(column, row, possible_atoms[storedValue+1])
-				
+				add_score(storedValue+1)
 		else:
 			break
+	#if the merging process goes through, (storedValue will not be null) then check for merges again.
+	#this should lead to chain reactions.
 	if storedValue != null:
 		grid_logic()
 
@@ -177,10 +188,12 @@ func random_atom():
 
 func level_up():
 	level += 1
+	print("Level up! Level:")
 	print(level)
 	update_pool()
 
 func update_pool():
+	#clear pool
 	weighted_pool = []
 	#give pluses a weight of 5
 	for i in 5:
@@ -188,6 +201,10 @@ func update_pool():
 	#give minuses a weight of 1
 	for i in 1:
 		weighted_pool.append(special_atoms[1])
+	#move the possible atom bracket up one, each atom bracket should have maximum_weight atoms total.
+	#atom bracket STARTS at minimum_weight. minimum weight = 1 by default to start with hydrogen.
+	#EX: maximum_weight = 5 -> starting weighted pool = [H, He, Li, Be, B]
+	#maximum_weight = 5 -> after 2 level ups, weighted pool = [Li, Be, B, C, N]
 	for i in maximum_weight:
 		for j in 5:
 			weighted_pool.append(possible_atoms[minimum_weight+i+level])
@@ -237,18 +254,27 @@ func spawn_atom(x,y, type, appear = true):
 	atomArray[x][y] = atom
 	if appear: atom.appear()
 
+#DIFFERENT FROM slide_atom(), this is a helper function that takes an atom and moves it to a new position (animated). 
+#this OVERWRITES the old atom.
 func move_atom(x1,y1, x2,y2):
+	#Modulo all of the input coordinates
 	x1 = posmod(x1, width)
 	y1 = posmod(y1, height)
 	x2 = posmod(x2, width)
 	y2 = posmod(y2, height)
-	var atom = atomArray[x1][y1]
+	#get atom at the first set of coordinates (x1, y1)
+	var atom = get_atom(x1,y1)
+	#as long as the atom exists (isn't null), execute the atom's move function to the second set of coordinates (x2, y2)
+	#NOTE: atom.move() is a purely visual function that handles animating the movement.
+	#wait for the atom's total_merge_time, then erase the old atom and replace it with the new one.
 	if atom != null:
 		atom.move(x2,y2)
 		await get_tree().create_timer(atom.total_merge_time).timeout
 		atomArray[x1][y1] = null
 		atomArray[x2][y2] = atom
+		
 
+#Debug function that allows the admin user to push any atom they want to the front of the queue
 func atom_select():
 	if Input.is_action_just_pressed("select_plus"):
 		level_up()
@@ -267,7 +293,7 @@ func atom_select():
 		
 	if Input.is_action_just_pressed("store_atom"):
 		cycle_held_atom(random_atom(), 4)
-
+#Debug function that allows the admin user to delete any atom they want off of the board.
 func erase_input():
 	if Input.is_action_pressed("ui_erase"):
 		var grid_position = pixel_to_grid(get_global_mouse_position().x, get_global_mouse_position().y)
@@ -292,6 +318,7 @@ func delete_atom(x,y = null):
 			x.queue_free()
 			x = null
 
+#Special function for the gluon powerup
 func slide_atom(x, y, direction: Vector2):
 	var moveNum = null
 	# if the slot next to the atom is open, just move the atom.
@@ -343,12 +370,12 @@ func cycle_held_atom(atom, position = 0):
 		
 	if position == 4:
 		held_atom.pop_front()
-		
+		#checks if atom argunment is a packed scene or an int. If its an int, pull from the universal atom pool.
 		if atom.has_method("instantiate"):
 			held_atom.push_back(atom)
 		else:
 			held_atom.push_back(possible_atoms[atom.value])
-
+	
 	if position == 0:
 		held_atom.pop_front()
 		
@@ -373,8 +400,6 @@ func cycle_held_atom(atom, position = 0):
 		add_child(held_atom_instance[i])
 		#insert passed atom into held_atom array at passed position
 
-		
-		
 #swiping variables
 var x1
 var y1
@@ -382,40 +407,34 @@ var x2
 var y2
 var grid_position1
 
-func touch_input():
+signal passTurn()
+func pass_turn():
+	passTurn.emit()
 	
+var swipeDirection
+var swipeStart
+var swipeEnd
+func receive_swipe(swipe_start, swipe_end, direction):
+	swipeDirection = direction
+	swipeStart = swipe_start
+	swipeEnd = swipe_end
+	
+func touch_input():
+	#if the held atom's ability is move, allows the user to push / slide an atom.
 	if held_atom_instance[0].ability == "move":
-		
-		if Input.is_action_just_pressed("ui_touch"):
-			grid_position1 = pixel_to_grid(get_global_mouse_position().x, get_global_mouse_position().y)
+		await InputHandler.swipe
+		var x = pixel_to_grid(swipeStart.x,swipeStart.y).x
+		var y = pixel_to_grid(swipeStart.x,swipeStart.y).y
+		print("X: ",x)
+		print("Y: ",y)
+		if swipeStart.x >= 0 && swipeStart.x < width && swipeStart.y >= 0 && swipeStart.y < width:
 			
-			
-			if grid_position1.x >= 0 && grid_position1.x < width && grid_position1.y >= 0 && grid_position1.y < width:
-				x1 = get_global_mouse_position().x
-				y1 = get_global_mouse_position().y
-				print(x1)
-		if Input.is_action_just_released("ui_touch") && atomArray[grid_position1.x][grid_position1.y] != null:
-			x2 = get_global_mouse_position().x
-			y2 = get_global_mouse_position().y
-
-			print(x2)
-			var x_diff = x2-x1
-			var y_diff = y2-y1
-			var direction
-			if abs(x_diff) > abs(y_diff):
-				direction = Vector2(sign(x_diff), 0)
-			else:
-				direction = Vector2(0, -sign(y_diff))
-			print(direction)
-			#NOTE: FIX GLUON, MAKE IT SHIFT ENTIRE ROW / COLUMN PROPERLY
-			
-			if atomArray[grid_position1.x][grid_position1.y] != null && direction != Vector2(0,0) && direction != null:
-				slide_atom(grid_position1.x, grid_position1.y, direction)
-				await get_tree().create_timer(total_merge_time).timeout
-				rounds_passed += 1
-				cycle_held_atom(random_atom(), 4)
-				grid_logic()
-			
+			print("X: ",x)
+			print("Y: ",y)
+			slide_atom(x,y,swipeDirection)
+				#NOTE: FIX GLUON, MAKE IT SHIFT ENTIRE ROW / COLUMN PROPERLY
+				
+				
 	else:	
 		
 		if Input.is_action_just_released("ui_touch"):
@@ -430,10 +449,12 @@ func touch_input():
 						await get_tree().create_timer(atomArray[x][y].total_merge_time).timeout
 						cycle_held_atom(atomArray[x][y], 0)
 						delete_atom(atomArray[x][y])
+						pass_turn()
 						
 				if held_atom_instance[0].ability == "multiply":
 					if atomArray[x][y] != null:
 						cycle_held_atom(atomArray[x][y], 0)
+						pass_turn()
 						
 				if atomArray[x][y] == null && (held_atom_instance[0].ability == "" or held_atom_instance[0].ability == "plus"):
 					#delete last held atom instance
@@ -448,11 +469,18 @@ func touch_input():
 					print(level)
 					cycle_held_atom(random_atom(), 4)
 					grid_logic()
+					pass_turn()
+#triggers on signal from a PowerUp instance, accepts string input for powerup type.
+func usePowerUp(type):
+	if(type == "move"):
+		cycle_held_atom(special_atoms[3])
+
 func grid_logic():
 	for i in width:
 		for j in height:
 			if atomArray[i][j] != null && atomArray[i][j].ability == "plus":
 				merge_at(i,j)
+				
 				
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta: float) -> void:

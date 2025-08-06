@@ -1,6 +1,6 @@
 [gd_scene load_steps=6 format=3 uid="uid://rlkyxbjk2kyc"]
 
-[ext_resource type="Script" path="res://scripts/atom.gd" id="1_2t0b0"]
+[ext_resource type="Script" uid="uid://gde86oa4bjt2" path="res://scripts/atom.gd" id="1_2t0b0"]
 [ext_resource type="Texture2D" uid="uid://dk62l2kcdwonw" path="res://sprites/dbjfuiq-05fc4767-d795-4a77-a664-f8b75df70fb7.png" id="3_2sd5x"]
 
 [sub_resource type="Animation" id="Animation_kh485"]
@@ -35,8 +35,8 @@ tracks/0/keys = {
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_j8xdj"]
 _data = {
-"RESET": SubResource("Animation_kh485"),
-"appear": SubResource("Animation_wli0o")
+&"RESET": SubResource("Animation_kh485"),
+&"appear": SubResource("Animation_wli0o")
 }
 
 [node name="atom" type="Node2D"]
@@ -67,7 +67,7 @@ texture = ExtResource("3_2sd5x")
 
 [node name="AnimationPlayer" type="AnimationPlayer" parent="."]
 libraries = {
-"": SubResource("AnimationLibrary_j8xdj")
+&"": SubResource("AnimationLibrary_j8xdj")
 }
 
 [node name="Sprite2D" type="Sprite2D" parent="."]
