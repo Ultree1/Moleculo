@@ -9,4 +9,4 @@ value = 6
 text = "C"
 
 [node name="Sprite" parent="." index="1"]
-modulate = Color(0.0910039, 0.10012, 0.120617, 1)
+modulate = Color(0.156375, 0.169441, 0.198814, 1)
