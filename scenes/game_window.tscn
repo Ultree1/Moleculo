@@ -1,7 +1,7 @@
 [gd_scene load_steps=8 format=3 uid="uid://busfdy5871n1l"]
 
-[ext_resource type="Script" uid="uid://boi0m8osi8366" path="res://scenes/game.gd" id="1_5bvbt"]
-[ext_resource type="Script" uid="uid://dbtxivnuenx7k" path="res://scripts/grid.gd" id="1_dctvc"]
+[ext_resource type="Script" uid="uid://boi0m8osi8366" path="res://scripts/game.gd" id="1_5bvbt"]
+[ext_resource type="Script" uid="uid://dbtxivnuenx7k" path="res://scripts/Grid.gd" id="1_dctvc"]
 [ext_resource type="FontFile" uid="uid://j8wucnot8278" path="res://fonts/Godot-Fontpack-d244bf6170b399a6d4d26a0d906058ddf2dafdf1/fonts/montreal/Montreal-Bold.ttf" id="2_5snyb"]
 [ext_resource type="Texture2D" uid="uid://swj4ja8s05mr" path="res://sprites/Pause_Button2.png" id="2_wyien"]
 [ext_resource type="Script" uid="uid://bmjervoxxc1cp" path="res://scripts/ui.gd" id="2_xqmpp"]

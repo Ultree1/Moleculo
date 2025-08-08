@@ -3,6 +3,7 @@
 [ext_resource type="PackedScene" uid="uid://rlkyxbjk2kyc" path="res://scenes/atom.tscn" id="1_tposi"]
 
 [node name="atom" instance=ExtResource("1_tposi")]
+value = 10
 
 [node name="Label" parent="." index="0"]
 offset_left = -10.0

@@ -1,7 +1,7 @@
 extends Node2D
 signal swipe
 var swipe_start = null
-var minimum_drag = 100
+var minimum_drag = 30
 
 func _unhandled_input(event):
 	if event.is_action_pressed("ui_touch"):
@@ -30,9 +30,9 @@ func _calculate_swipe(swipe_end):
 			print("left")
 	else:
 		if swipeVector.y > 0:
-			direction = Vector2(0,1)
+			direction = Vector2(0,-1)
 			print("down")
 		else:
-			direction = Vector2(0,-1)
+			direction = Vector2(0,1)
 			print("up")
 	swipe.emit(swipe_start, swipe_end, direction)

@@ -196,7 +196,7 @@ func update_pool():
 	#clear pool
 	weighted_pool = []
 	#give pluses a weight of 5
-	for i in 5:
+	for i in 10:
 		weighted_pool.append(special_atoms[0])
 	#give minuses a weight of 1
 	for i in 1:
@@ -290,7 +290,6 @@ func atom_select():
 		cycle_held_atom(special_atoms[2])
 	if Input.is_action_just_pressed("key_r"):
 		cycle_held_atom(special_atoms[3])
-		
 	if Input.is_action_just_pressed("store_atom"):
 		cycle_held_atom(random_atom(), 4)
 #Debug function that allows the admin user to delete any atom they want off of the board.
@@ -414,29 +413,25 @@ func pass_turn():
 var swipeDirection
 var swipeStart
 var swipeEnd
-func receive_swipe(swipe_start, swipe_end, direction):
-	swipeDirection = direction
-	swipeStart = swipe_start
-	swipeEnd = swipe_end
+func receive_swipe(swipeStart, swipeEnd, swipeDirection):
+	if held_atom_instance[0].ability == "move":
+		print("direction:",swipeDirection)
+		print("start coords:", swipeStart)
+		print("end coords:", swipeEnd)
+		var x = pixel_to_grid(swipeStart.x, swipeStart.y).x
+		var y = pixel_to_grid(swipeStart.x, swipeStart.y).y
+		slide_atom(x,y,swipeDirection)
+		await get_tree().create_timer(atomArray[x][y].total_merge_time).timeout
+		cycle_held_atom(random_atom(), 4)
+		grid_logic()
+		pass_turn()
 	
 func touch_input():
 	#if the held atom's ability is move, allows the user to push / slide an atom.
-	if held_atom_instance[0].ability == "move":
-		await InputHandler.swipe
-		var x = pixel_to_grid(swipeStart.x,swipeStart.y).x
-		var y = pixel_to_grid(swipeStart.x,swipeStart.y).y
-		print("X: ",x)
-		print("Y: ",y)
-		if swipeStart.x >= 0 && swipeStart.x < width && swipeStart.y >= 0 && swipeStart.y < width:
-			
-			print("X: ",x)
-			print("Y: ",y)
-			slide_atom(x,y,swipeDirection)
-				#NOTE: FIX GLUON, MAKE IT SHIFT ENTIRE ROW / COLUMN PROPERLY
-				
-				
-	else:	
-		
+	#the touch_input() function is aborted and control is given to the receive_swipe() function
+	#which is connected to the autoload input handler system for swipe detection
+		if held_atom_instance[0].ability == "move":
+			return
 		if Input.is_action_just_released("ui_touch"):
 			var grid_position = pixel_to_grid(get_global_mouse_position().x, get_global_mouse_position().y)
 			if grid_position.x >= 0 && grid_position.x < width && grid_position.y >= 0 && grid_position.y < width:
@@ -454,7 +449,6 @@ func touch_input():
 				if held_atom_instance[0].ability == "multiply":
 					if atomArray[x][y] != null:
 						cycle_held_atom(atomArray[x][y], 0)
-						pass_turn()
 						
 				if atomArray[x][y] == null && (held_atom_instance[0].ability == "" or held_atom_instance[0].ability == "plus"):
 					#delete last held atom instance
@@ -465,8 +459,6 @@ func touch_input():
 					rounds_passed += 1
 					if(rounds_passed % 20 == 0):
 						level_up()
-					print(rounds_passed)
-					print(level)
 					cycle_held_atom(random_atom(), 4)
 					grid_logic()
 					pass_turn()
