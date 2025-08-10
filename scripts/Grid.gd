@@ -83,7 +83,7 @@ func _ready() -> void:
 	
 	for i in 5:
 		held_atom.append(random_atom())
-		held_atom_instance.append(held_atom[i].instantiate())
+		held_atom_instance.append(held_atom[i])
 		add_child(held_atom_instance[i])
 		held_atom_instance[i].position = Vector2(288+ (i*offset),900)
 		if i == 0:
@@ -157,7 +157,7 @@ func merge_at(column, row):
 				delete_atom(right[i])
 				delete_atom(column, row)
 				#spawn new atom with proper value
-				spawn_atom(column, row, possible_atoms[storedValue+1])
+				spawn_atom(column, row, storedValue+1)
 				add_score(storedValue+1)
 				atomMerged.emit()
 				print(i) 
@@ -184,7 +184,7 @@ func merge_at(column, row):
 				delete_atom(down[i])
 				delete_atom(column, row)
 				#spawn new atom with proper value
-				spawn_atom(column, row, possible_atoms[storedValue+1])
+				spawn_atom(column, row, storedValue+1)
 				add_score(storedValue+1)
 				atomMerged.emit()
 		else:
@@ -196,7 +196,9 @@ func merge_at(column, row):
 
 	
 func random_atom():
-	var atom = weighted_pool.pick_random()
+	var value = weighted_pool.pick_random()
+	var atom = possible_atoms[0].instantiate()
+	atom.value = value
 	return atom
 
 func level_up():
@@ -220,9 +222,9 @@ func update_pool():
 	#maximum_weight = 5 -> after 2 level ups, weighted pool = [Li, Be, B, C, N]
 	for i in maximum_weight:
 		for j in 5:
-			weighted_pool.append(possible_atoms[minimum_weight+i+level])
+			weighted_pool.append(minimum_weight+i+level)
 	for i in weighted_pool.size():
-		print(weighted_pool[i].instantiate().value)
+		pass
 
 func fill_array():
 	for i in width:
@@ -257,10 +259,11 @@ func spawn_atom(x,y, type, appear = true):
 		delete_atom(x,y)
 		return
 		#checks if the scene has already been instantiated
-	if type.has_method("instantiate"):
+	if type is Node2D:
 		atom = type.instantiate()
 	else:
-		atom = possible_atoms[type.value].instantiate()
+		atom = possible_atoms[0].instantiate()
+		atom.value = type
 	add_child(atom)
 	atom.position = grid_to_pixel(x, y)
 	atom.scale = Vector2(atom_scale, atom_scale)
