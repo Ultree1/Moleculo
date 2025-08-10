@@ -7,5 +7,6 @@ func _ready():
 	for i in powerUpContainer.get_child_count():
 		var powerUp = powerUpContainer.get_children()[i]
 		grid.passTurn.connect(powerUp.turn_passed)
+		grid.atomMerged.connect(powerUp.atom_merged)
 		powerUp.usePowerUp.connect(grid.usePowerUp)
 		InputHandler.swipe.connect(grid.receive_swipe)

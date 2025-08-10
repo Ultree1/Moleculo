@@ -25,9 +25,6 @@ func _ready() -> void:
 		label.text = grid.atom_label[value]
 		sprite.self_modulate = Color(0,1,0)
 
-	
-	
-	
 func move(x,y = 0, grid_movement = true, set_z_index = -2):
 	var movement = create_tween()
 	z_index = set_z_index
@@ -40,6 +37,7 @@ func move(x,y = 0, grid_movement = true, set_z_index = -2):
 		
 		if grid_movement: movement.tween_property($".", "position", grid.grid_to_pixel(x,y), movement_time).set_trans(Tween.TRANS_CUBIC)
 		else: movement.tween_property($".", "position", Vector2(x,y), movement_time).set_trans(Tween.TRANS_CUBIC)
+		
 func appear():
 	anim.play("appear")
 	#var appear = create_tween()

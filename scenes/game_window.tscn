@@ -52,7 +52,8 @@ scale = Vector2(0.089, 0.089)
 layout_mode = 2
 focus_mode = 0
 powerUp = "move"
-maxCooldown = 2
+maxCooldown = 3
+rechargeType = "turn"
 
 [node name="Score" type="Label" parent="UI"]
 layout_mode = 2

@@ -1,0 +1,13 @@
+[gd_scene load_steps=2 format=3 uid="uid://cick0n45m08hy"]
+
+[ext_resource type="PackedScene" uid="uid://rlkyxbjk2kyc" path="res://scenes/atom.tscn" id="1_v0u1r"]
+
+[node name="atom" instance=ExtResource("1_v0u1r")]
+value = 23
+
+[node name="Label" parent="." index="0"]
+text = "V"
+
+[node name="Sprite" parent="." index="1"]
+modulate = Color(1, 0.990667, 0.92, 1)
+self_modulate = Color(0.393868, 0.414649, 0.538144, 1)

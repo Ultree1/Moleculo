@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://cc2o8j0jvb3dv"]
+[gd_scene load_steps=3 format=3 uid="uid://cc2o8j0jvb3dv"]
 
 [ext_resource type="PackedScene" uid="uid://rlkyxbjk2kyc" path="res://scenes/atom.tscn" id="1_hprxo"]
+
+[sub_resource type="Theme" id="Theme_ce72a"]
 
 [node name="atom" instance=ExtResource("1_hprxo")]
 ability = "move"
@@ -8,6 +10,7 @@ ability = "move"
 [node name="Label" parent="." index="0"]
 offset_left = -6.75
 offset_right = 259.25
+theme = SubResource("Theme_ce72a")
 text = "✥"
 
 [node name="Sprite" parent="." index="1"]

@@ -40,6 +40,15 @@ var possible_atoms = [
 	preload("res://scenes/atoms/magnesium_atom.tscn"),
 	preload("res://scenes/atoms/aluminum_atom.tscn"),
 	preload("res://scenes/atoms/silicon_atom.tscn"),
+	preload("res://scenes/atoms/phosphorus_atom.tscn"),
+	preload("res://scenes/atoms/sulphur_atom.tscn"),
+	preload("res://scenes/atoms/chlorine_atom.tscn"),
+	preload("res://scenes/atoms/argon_atom.tscn"),
+	preload("res://scenes/atoms/potassium_atom.tscn"),
+	preload("res://scenes/atoms/calcium_atom.tscn"),
+	preload("res://scenes/atoms/scandium_atom.tscn"),
+	preload("res://scenes/atoms/titanium_atom.tscn"),
+	preload("res://scenes/atoms/vanadium_atom.tscn"),
 	
 	]
 	
@@ -107,6 +116,7 @@ signal addScore(value)
 func add_score(value):
 	addScore.emit(value)
 	
+signal atomMerged()
 func merge_at(column, row):
 	print("merge called")
 	#create four arrays that store the neighbors of the merge spot in order
@@ -149,6 +159,7 @@ func merge_at(column, row):
 				#spawn new atom with proper value
 				spawn_atom(column, row, possible_atoms[storedValue+1])
 				add_score(storedValue+1)
+				atomMerged.emit()
 				print(i) 
 		else:
 			break
@@ -175,6 +186,7 @@ func merge_at(column, row):
 				#spawn new atom with proper value
 				spawn_atom(column, row, possible_atoms[storedValue+1])
 				add_score(storedValue+1)
+				atomMerged.emit()
 		else:
 			break
 	#if the merging process goes through, (storedValue will not be null) then check for merges again.
