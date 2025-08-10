@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://busfdy5871n1l"]
+[gd_scene load_steps=9 format=3 uid="uid://busfdy5871n1l"]
 
 [ext_resource type="Script" uid="uid://boi0m8osi8366" path="res://scripts/game.gd" id="1_5bvbt"]
 [ext_resource type="Script" uid="uid://dbtxivnuenx7k" path="res://scripts/Grid.gd" id="1_dctvc"]
@@ -10,6 +10,8 @@
 [sub_resource type="Theme" id="Theme_5snyb"]
 default_font = ExtResource("2_5snyb")
 default_font_size = 100
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_5bvbt"]
 
 [node name="game_window" type="Node2D"]
 script = ExtResource("1_5bvbt")
@@ -70,5 +72,6 @@ offset_top = 1.0
 offset_right = 1017.0
 offset_bottom = 521.0
 scale = Vector2(0.15, 0.15)
+theme_override_styles/focus = SubResource("StyleBoxEmpty_5bvbt")
 icon = ExtResource("2_wyien")
 flat = true

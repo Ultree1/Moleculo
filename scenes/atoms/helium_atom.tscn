@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" uid="uid://rlkyxbjk2kyc" path="res://scenes/atom.tscn" id="1_yddoj"]
 
-[node name="atom" instance=ExtResource("1_yddoj")]
+[node name="atom2" instance=ExtResource("1_yddoj")]
 value = 2
 
 [node name="Label" parent="." index="0"]

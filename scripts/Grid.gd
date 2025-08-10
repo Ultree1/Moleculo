@@ -421,11 +421,12 @@ func receive_swipe(swipeStart, swipeEnd, swipeDirection):
 		print("end coords:", swipeEnd)
 		var x = pixel_to_grid(swipeStart.x, swipeStart.y).x
 		var y = pixel_to_grid(swipeStart.x, swipeStart.y).y
-		slide_atom(x,y,swipeDirection)
-		await get_tree().create_timer(atomArray[x][y].total_merge_time).timeout
-		cycle_held_atom(random_atom(), 4)
-		grid_logic()
-		pass_turn()
+		if(get_atom(x,y) != null && is_instance_valid(get_atom(x,y))):
+			slide_atom(x,y,swipeDirection)
+			await get_tree().create_timer(atomArray[x][y].total_merge_time).timeout
+			cycle_held_atom(random_atom(), 4)
+			grid_logic()
+			pass_turn()
 	
 func touch_input():
 	#if the held atom's ability is move, allows the user to push / slide an atom.
