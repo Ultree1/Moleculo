@@ -334,7 +334,7 @@ func delete_atom(x,y = null):
 func slide_atom(x, y, direction: Vector2):
 	var moveNum = null
 	# if the slot next to the atom is open, just move the atom.
-	
+
 	if get_atom(x + (direction.x), y + (direction.y)) == null:
 		move_atom(x, y, x+direction.x, y+direction.y)
 	#otherwise, check in the direction of the swipe for the next empty space.
@@ -469,9 +469,9 @@ func touch_input():
 					
 					spawn_atom(x,y, held_atom[0])
 					#update held atom with random atom (random atom returns an atom instance of 
-					#pass round and level up every 20 rounds
+					#pass round and level up every 30 rounds
 					rounds_passed += 1
-					if(rounds_passed % 20 == 0):
+					if(rounds_passed % 30 == 0):
 						level_up()
 					cycle_held_atom(random_atom(), 4)
 					grid_logic()
