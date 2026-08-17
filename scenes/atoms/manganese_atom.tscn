@@ -3,11 +3,11 @@
 [ext_resource type="PackedScene" uid="uid://rlkyxbjk2kyc" path="res://scenes/atom.tscn" id="1_e7v1y"]
 
 [node name="atom" instance=ExtResource("1_e7v1y")]
-value = 24
+value = 25
 
 [node name="Label" parent="." index="0"]
 text = "Mn"
 
-[node name="Sprite" parent="." index="1"]
+[node name="Sprite" parent="." index="2"]
 modulate = Color(1, 0.990667, 0.92, 1)
 self_modulate = Color(0.443048, 0.204925, 0.676629, 1)

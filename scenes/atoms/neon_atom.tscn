@@ -12,5 +12,5 @@ offset_right = 398.0
 offset_bottom = 531.75
 text = "Ne"
 
-[node name="Sprite" parent="." index="1"]
+[node name="Sprite" parent="." index="2"]
 modulate = Color(0.87776, 0.385368, 0.22563, 1)

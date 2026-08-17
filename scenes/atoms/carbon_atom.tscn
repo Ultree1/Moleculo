@@ -8,5 +8,5 @@ value = 6
 [node name="Label" parent="." index="0"]
 text = "C"
 
-[node name="Sprite" parent="." index="1"]
+[node name="Sprite" parent="." index="2"]
 modulate = Color(0.156375, 0.169441, 0.198814, 1)

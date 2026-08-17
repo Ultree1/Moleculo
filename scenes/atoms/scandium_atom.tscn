@@ -8,6 +8,6 @@ value = 21
 [node name="Label" parent="." index="0"]
 text = "Sc"
 
-[node name="Sprite" parent="." index="1"]
+[node name="Sprite" parent="." index="2"]
 modulate = Color(1, 0.990667, 0.92, 1)
 self_modulate = Color(0.52, 0.396847, 0.2652, 1)

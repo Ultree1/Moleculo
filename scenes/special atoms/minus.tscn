@@ -13,5 +13,5 @@ offset_bottom = 525.0
 scale = Vector2(0.07, 0.07)
 text = "-"
 
-[node name="Sprite" parent="." index="1"]
+[node name="Sprite" parent="." index="2"]
 modulate = Color(0.183333, 0, 1, 1)

@@ -10,5 +10,5 @@ offset_left = -12.5
 offset_right = 431.5
 text = "Mg"
 
-[node name="Sprite" parent="." index="1"]
+[node name="Sprite" parent="." index="2"]
 modulate = Color(0.508382, 0.488068, 0.518197, 1)

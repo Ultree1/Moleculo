@@ -23,7 +23,7 @@ autowrap_mode = 2
 script = ExtResource("3_bmfpq")
 
 [node name="Cooldown" type="Label" parent="."]
-self_modulate = Color(0.903715, 0.695695, 0.947178, 1)
+self_modulate = Color(0.95, 0.95, 0.95, 0.7411765)
 layout_mode = 0
 offset_left = 179.512
 offset_top = 112.194

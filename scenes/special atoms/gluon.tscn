@@ -13,5 +13,5 @@ offset_right = 259.25
 theme = SubResource("Theme_ce72a")
 text = "✥"
 
-[node name="Sprite" parent="." index="1"]
+[node name="Sprite" parent="." index="2"]
 modulate = Color(0.830543, 0.00174888, 0.971276, 1)

@@ -58,3 +58,4 @@ func _button_pressed():
 	if(rechargeType == "merge"):
 		if(charges <= 0):
 			disabled = true
+	

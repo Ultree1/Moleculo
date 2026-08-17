@@ -21,42 +21,20 @@ var atomArray = []
 
 var starting_atoms = [
 	preload("res://scenes/atoms/hydrogen_atom.tscn"),
-	preload("res://scenes/atoms/helium_atom.tscn") 
+	preload("res://scenes/atoms/helium_atom.tscn")  
 ]
 
-var possible_atoms = [
-	preload("res://scenes/special atoms/plus.tscn"),
-	preload("res://scenes/atoms/hydrogen_atom.tscn"),
-	preload("res://scenes/atoms/helium_atom.tscn"),
-	preload("res://scenes/atoms/lithium_atom.tscn"),
-	preload("res://scenes/atoms/beryllium_atom.tscn"),
-	preload("res://scenes/atoms/boron_atom.tscn"),
-	preload("res://scenes/atoms/carbon_atom.tscn"),
-	preload("res://scenes/atoms/nitrogen_atom.tscn"),
-	preload("res://scenes/atoms/oxygen_atom.tscn"),
-	preload("res://scenes/atoms/fluorine_atom.tscn"),
-	preload("res://scenes/atoms/neon_atom.tscn"),
-	preload("res://scenes/atoms/sodium_atom.tscn"),
-	preload("res://scenes/atoms/magnesium_atom.tscn"),
-	preload("res://scenes/atoms/aluminum_atom.tscn"),
-	preload("res://scenes/atoms/silicon_atom.tscn"),
-	preload("res://scenes/atoms/phosphorus_atom.tscn"),
-	preload("res://scenes/atoms/sulphur_atom.tscn"),
-	preload("res://scenes/atoms/chlorine_atom.tscn"),
-	preload("res://scenes/atoms/argon_atom.tscn"),
-	preload("res://scenes/atoms/potassium_atom.tscn"),
-	preload("res://scenes/atoms/calcium_atom.tscn"),
-	preload("res://scenes/atoms/scandium_atom.tscn"),
-	preload("res://scenes/atoms/titanium_atom.tscn"),
-	preload("res://scenes/atoms/vanadium_atom.tscn"),
-	
-	]
+#possible_atoms stores the order of each atom. To make a new atom, make an inherited scene off of
+#the base atom scene, change the label, color, and the value in the inspector, and make sure the
+#new scene is in the scenes/atoms/ folder. 
+var possible_atoms = []
 	
 var special_atoms = [
 	preload("res://scenes/special atoms/plus.tscn"),
 	preload("res://scenes/special atoms/minus.tscn"),
 	preload("res://scenes/special atoms/neutrino.tscn"),
-	preload("res://scenes/special atoms/gluon.tscn")
+	preload("res://scenes/special atoms/gluon.tscn"),
+	preload("res://scenes/special atoms/meson.tscn")
 ]
 #atom spawning variables
 var weighted_pool = []
@@ -76,7 +54,40 @@ var held_atom = []
 var held_atom_instance = []
 var lowest_atom_value = 1
 # Called when the node enters the scene tree for the first time.
+func load_assets_from_folder(path: String):
+	var dir = DirAccess.open(path)
+
+	if dir:
+		dir.list_dir_begin()
+		var file_name = dir.get_next()
+		while file_name != "":
+			if not dir.current_is_dir(): # Check if it's a file, not a directory
+				# Construct the full path to the asset
+				var asset_path = path.path_join(file_name)
+				
+				# Load the resource if it's a recognized Godot resource type
+				# You might need to add specific checks for file extensions
+				# or handle different resource types based on your needs.
+				if ResourceLoader.exists(asset_path):
+					var asset = ResourceLoader.load(asset_path)
+					if asset:
+						possible_atoms[asset.instantiate().value] = asset
+			file_name = dir.get_next()
+	else:
+		print("An error occurred when trying to access the path: " + path)
+
+	return
+	
+func load_atoms():
+	possible_atoms.clear()
+	for i in 118:
+		possible_atoms.append(null)
+	possible_atoms[0] = special_atoms[0]
+	load_assets_from_folder("res://scenes/atoms/")
+
 func _ready() -> void:
+	load_atoms()
+	
 	update_pool()
 	maximum_weight = 3
 	minimum_weight = 1
@@ -208,18 +219,20 @@ func level_up():
 func update_pool():
 	#clear pool
 	weighted_pool = []
-	#give pluses a weight of 5
-	for i in 10:
+	#give pluses a weight of 10
+	for i in 20:
 		weighted_pool.append(special_atoms[0])
 	#give minuses a weight of 1
-	for i in 1:
+	for i in 2:
 		weighted_pool.append(special_atoms[1])
+	for i in 1:
+		weighted_pool.append(special_atoms[2])
 	#move the possible atom bracket up one, each atom bracket should have maximum_weight atoms total.
 	#atom bracket STARTS at minimum_weight. minimum weight = 1 by default to start with hydrogen.
 	#EX: maximum_weight = 5 -> starting weighted pool = [H, He, Li, Be, B]
 	#maximum_weight = 5 -> after 2 level ups, weighted pool = [Li, Be, B, C, N]
 	for i in maximum_weight:
-		for j in 5:
+		for j in 10:
 			weighted_pool.append(possible_atoms[minimum_weight+i+level])
 	for i in weighted_pool.size():
 		print(weighted_pool[i].instantiate().value)
@@ -296,7 +309,7 @@ func atom_select():
 	if Input.is_action_just_pressed("select_helium"):
 		cycle_held_atom(possible_atoms[2])
 	if Input.is_action_just_pressed("key_q"):
-		cycle_held_atom(possible_atoms[0])
+		cycle_held_atom(special_atoms[0])
 	if Input.is_action_just_pressed("key_w"):
 		cycle_held_atom(special_atoms[1])
 	if Input.is_action_just_pressed("key_e"):
@@ -427,6 +440,7 @@ var swipeDirection
 var swipeStart
 var swipeEnd
 func receive_swipe(swipeStart, swipeEnd, swipeDirection):
+	
 	if held_atom_instance[0].ability == "move":
 		print("direction:",swipeDirection)
 		print("start coords:", swipeStart)
@@ -436,6 +450,52 @@ func receive_swipe(swipeStart, swipeEnd, swipeDirection):
 		if(get_atom(x,y) != null && is_instance_valid(get_atom(x,y))):
 			slide_atom(x,y,swipeDirection)
 			await get_tree().create_timer(atomArray[x][y].total_merge_time).timeout
+			cycle_held_atom(random_atom(), 4)
+			grid_logic()
+			pass_turn()
+	if held_atom_instance[0].ability == "spin":
+		print("direction:",swipeDirection)
+		print("start coords:", swipeStart)
+		print("end coords:", swipeEnd)
+		var x = pixel_to_grid(swipeStart.x, swipeStart.y).x
+		var y = pixel_to_grid(swipeStart.x, swipeStart.y).y
+		var temp = get_atom(x+1, y+1)
+		#move top atom rightwards first, then every atom follows.
+		if(swipeDirection.x > 0):
+			if(temp != null):
+				temp.move(x+1,y)
+			move_atom(x,y+1, x+1, y+1)
+			move_atom(x-1,y+1, x, y+1)
+			move_atom(x-1,y, x-1, y+1)
+			move_atom(x-1,y-1, x-1, y)
+			move_atom(x, y-1, x-1, y-1)
+			move_atom(x+1, y-1, x, y-1)
+			move_atom(x+1, y, x+1, y-1)
+			await get_tree().create_timer(total_merge_time).timeout
+			#spawn the destroyed atom where it should be.
+			if(temp != null):
+				spawn_atom(x+1, y, possible_atoms[temp.value], false)
+				temp.queue_free()
+			cycle_held_atom(random_atom(), 4)
+			grid_logic()
+			pass_turn()
+		if(swipeDirection.x < 0):
+			if(temp != null):
+				temp.move(x, y+1)
+			# Move atoms counter-clockwise around the center (x, y)
+			move_atom(x+1, y,   x+1, y+1)
+			move_atom(x+1, y-1, x+1, y)
+			move_atom(x,   y-1, x+1, y-1)
+			move_atom(x-1, y-1, x,   y-1)
+			move_atom(x-1, y,   x-1, y-1)
+			move_atom(x-1, y+1, x-1, y)
+			move_atom(x,   y+1, x-1, y+1)
+			
+			await get_tree().create_timer(total_merge_time).timeout
+			#spawn the destroyed atom where it should be.
+			if(temp != null):
+				spawn_atom(x, y+1, possible_atoms[temp.value], false)
+				temp.queue_free()
 			cycle_held_atom(random_atom(), 4)
 			grid_logic()
 			pass_turn()
@@ -480,6 +540,8 @@ func touch_input():
 func usePowerUp(type):
 	if(type == "move"):
 		cycle_held_atom(special_atoms[3])
+	if(type == "spin"):
+		cycle_held_atom(special_atoms[4])
 
 func grid_logic():
 	for i in width:
@@ -489,7 +551,18 @@ func grid_logic():
 				
 				
 # Called every frame. 'delta' is the elapsed time since the previous frame.
+var paused = false
+
+func pause():
+	paused = true
+
+func resume():
+	#adding a delay before resuming prevents input overlap / accidental atom placement
+	await get_tree().create_timer(0.1).timeout
+	paused = false
+	
 func _process(delta: float) -> void:
-	touch_input()
-	erase_input()
-	atom_select()
+	if(!paused):
+		touch_input()
+		erase_input()
+		atom_select()

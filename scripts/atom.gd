@@ -5,25 +5,29 @@ const PHI = 1.618033988749894848204586834
 @export var color: Color
 @export var value: int
 @export var ability: String
-var is_held_atom: bool
-@onready var label = $Label
-@onready var sprite = $Sprite
-@onready var grid = get_parent()
-@onready var anim = $AnimationPlayer
+
+
 @export var movement_time: float
 @export var appear_time: float
 @export var total_merge_time: float
 @export var movement_speed:float = 1
 @export var spawn_chance: int
 var velocity = Vector2(0,0)
-
+var is_held_atom: bool
+@onready var label = $Label
+@onready var numLabel = $NumberLabel
+@onready var sprite = $Sprite
+@onready var grid = get_parent()
+@onready var anim = $AnimationPlayer
 
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	if ability == null:
+	if ability == "":
 		label.text = grid.atom_label[value]
-		sprite.self_modulate = Color(0,1,0)
+		numLabel.text = str(value)
+	if UserSettings.show_atomic_number == false:
+		numLabel.hide()
 
 func move(x,y = 0, grid_movement = true, set_z_index = -2):
 	var movement = create_tween()

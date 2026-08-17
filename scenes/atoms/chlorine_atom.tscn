@@ -8,5 +8,5 @@ value = 17
 [node name="Label" parent="." index="0"]
 text = "Cl"
 
-[node name="Sprite" parent="." index="1"]
+[node name="Sprite" parent="." index="2"]
 self_modulate = Color(0.639947, 0.71, 0.4473, 1)

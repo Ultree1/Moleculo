@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://bukdkr3mowxpb"]
+
+[ext_resource type="PackedScene" uid="uid://rlkyxbjk2kyc" path="res://scenes/atom.tscn" id="1_0ufrr"]
+
+[sub_resource type="Theme" id="Theme_ce72a"]
+
+[node name="atom" instance=ExtResource("1_0ufrr")]
+ability = "spin"
+
+[node name="Label" parent="." index="0"]
+offset_left = -6.75
+offset_top = -14.75
+offset_right = 259.25
+offset_bottom = 531.25
+theme = SubResource("Theme_ce72a")
+text = "↻"
+
+[node name="Sprite" parent="." index="2"]
+modulate = Color(0, 0.39999992, 0.6, 1)
